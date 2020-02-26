@@ -5,9 +5,65 @@ var LINE_ENDPOINT = prop.LINE_ENDPOINT;
 
 // まさみ画像
 var masamiImages = {
-  'happy':'https://d3j69vjgw7ziu3.cloudfront.net/item_instagram_directs/images/000/143/305/large/23cf0eec-2b04-4bdd-b2ed-a0e589401706.jpg?1576576508',
-  'sad':'https://d3j69vjgw7ziu3.cloudfront.net/item_instagram_directs/images/000/143/305/large/23cf0eec-2b04-4bdd-b2ed-a0e589401706.jpg?1576576508'
+  'sad':'https://blog-imgs-24.fc2.com/n/o/h/nohtani45/e_20.jpg',
+  'sad2':'https://i.ytimg.com/vi/TFAI-YJbmjo/maxresdefault.jpg',
+  'sad3':'https://livedoor.blogimg.jp/rbkyn844/imgs/5/b/5b161c3e.jpg',
+  'normal':'https://imgc.eximg.jp/i=https%253A%252F%252Fs.eximg.jp%252Fexnews%252Ffeed%252FAsajo%252FAsajo_83133_afa6_1.jpg,zoom=600,quality=70,type=jpg',
+  'happy':'http://entametrix.com/wp-content/uploads/2017/09/nagasawa.jpg',
+  'happy2':'http://image.news.livedoor.com/newsimage/6/3/63ad93525842fb2e9319ac817079232c.jpg',
+  'happy3':'https://i.pinimg.com/564x/ed/2a/b4/ed2ab44c9adc16e44c080439f0e891a7.jpg',
+
+  'ishappy':'https://d3j69vjgw7ziu3.cloudfront.net/item_instagram_directs/images/000/143/305/large/23cf0eec-2b04-4bdd-b2ed-a0e589401706.jpg?1576576508',
+  'work':'https://i.pinimg.com/originals/74/8c/cc/748ccc152616ec660fca6ce377b079ae.jpg',
+  'sleep':'https://cdn.snsimg.carview.co.jp/carlife/images/UserCarPhoto/1027098/p1.jpg?ct=9337f6edcd5b',
 }
+
+var masamiMaster = [
+  //1
+  {
+    "text":"アカン",
+    "image":masamiImages.sad,
+    "score":15
+  },
+  //2
+  {
+    "text":"まあまあやばいね",
+    "image":masamiImages.sad2,
+    "score":25
+  },
+  //3
+  {
+    "text":"ちょっと疲れてるね",
+    "image":masamiImages.sad3,
+    "score":45
+  },
+  //4
+  {
+    "text":"ふつうやね",
+    "image":masamiImages.normal,
+    "score":60
+  },
+  //5
+  {
+    "text":"いい感じやね",
+    "image":masamiImages.happy,
+    "score":75
+  },
+  //6
+  {
+    "text":"めっちゃいい感じやね",
+    "image":masamiImages.happy2,
+    "score":90
+  },
+  //7
+  {
+    "text":"最高に楽しんでるね",
+    "image":masamiImages.happy3,
+    "score":100
+  },
+]
+
+
 
 // webhookを受ける
 function doPost(e) {
@@ -22,14 +78,24 @@ function doPost(e) {
   // ロジック
   var responseMessage = ''
   var text = ''
-  var postdata = ''
 
   if(json.events[0].type == 'postback'){
     var requestPostbackData = JSON.parse(json.events[0].postback.data);
 
     // 結果
     if ("isHappy" in requestPostbackData){
-      responseMessage = getMessage(json.events[0].postback.data);
+
+      var isSleep = requestPostbackData.isSleep
+      var isGoodFriends = requestPostbackData.isGoodFriends
+      var isHappy = requestPostbackData.isHappy
+
+      var score = isSleep + isGoodFriends + isHappy;
+      var data = masamiMaster[score - 3];
+
+      var text = "あなたの健康状態は" + data.score + "点！"
+      
+      responseMessage = getMessageTemplate(text, data.text, data.image);
+      
       
     // 3問目
     }else if("isGoodFriends" in requestPostbackData){
@@ -39,7 +105,7 @@ function doPost(e) {
         "ans3": JSON.stringify(Object.assign(requestPostbackData,{"isHappy":1})),
       };
       text = '仕事充実してる？'
-      responseMessage = getButtonTemplate(postbackData, text);
+      responseMessage = getButtonTemplate(postbackData, text, masamiImages.ishappy);
 
     // 2問目
     }else{
@@ -49,7 +115,7 @@ function doPost(e) {
         "ans3": JSON.stringify(Object.assign(requestPostbackData,{"isGoodFriends":1})),
       };
       text = '会社の同僚とはいい感じ？'
-      responseMessage = getButtonTemplate(postbackData, text);
+      responseMessage = getButtonTemplate(postbackData, text , masamiImages.work);
     }
   }else{
     // 1問目
@@ -59,7 +125,7 @@ function doPost(e) {
       "ans3": '{"isSleep":1}',
     };
     text = 'よく眠れている？'
-    responseMessage = getButtonTemplate(postbackData, text);
+    responseMessage = getButtonTemplate(postbackData, text, masamiImages.sleep);
   }
 
   // LINEのエンドポイントに投げる
@@ -103,7 +169,7 @@ function getConfirmTemplate(){
 }
 
 //ボタンテンプレートを返す
-function getButtonTemplate(postbackData, text){
+function getButtonTemplate(postbackData, text, thumbnailImageUrl){
 
   var actions = [
     {'type':'postback', 'label':'うん', 'data':postbackData.ans1},
@@ -112,7 +178,7 @@ function getButtonTemplate(postbackData, text){
   ];
   var template = {
     'type': 'buttons',
-    'thumbnailImageUrl':masamiImages.sad,
+    'thumbnailImageUrl':thumbnailImageUrl,
     'text': text,
     'actions': actions
   }
@@ -122,6 +188,30 @@ function getButtonTemplate(postbackData, text){
     'template': template
   }
   return message;
+}
+
+//テンプレートメッセージを返す
+function getMessageTemplate(title, text, thumbnailImageUrl){
+
+  var actions = [
+    {'type':'message', 'label':'もう一回やる', 'text':'もう一回やる'}
+  ];
+
+  var template = {
+    'title':title,
+    'type': 'buttons',
+    'thumbnailImageUrl':thumbnailImageUrl,
+    'text': text,
+    'actions': actions
+  }
+
+  var message = {
+    'type': 'template',
+    'altText': 'まさみチャットボット',
+    'template': template
+  }
+  return message;
+
 }
 
 
@@ -159,7 +249,7 @@ function getImage(imageUrl){
   var messages = {
     'type': 'image',
     'originalContentUrl':imageUrl,
-    'previewImageUrl': 'https://d3j69vjgw7ziu3.cloudfront.net/item_instagram_directs/images/000/143/305/large/23cf0eec-2b04-4bdd-b2ed-a0e589401706.jpg?1576576508'
+    'previewImageUrl': imageUrl
   };
   return messages;
 }
