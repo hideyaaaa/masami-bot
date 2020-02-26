@@ -9,8 +9,8 @@ var masamiImages = {
   'sad2':'https://i.ytimg.com/vi/TFAI-YJbmjo/maxresdefault.jpg',
   'sad3':'https://livedoor.blogimg.jp/rbkyn844/imgs/5/b/5b161c3e.jpg',
   'normal':'https://imgc.eximg.jp/i=https%253A%252F%252Fs.eximg.jp%252Fexnews%252Ffeed%252FAsajo%252FAsajo_83133_afa6_1.jpg,zoom=600,quality=70,type=jpg',
-  'happy':'http://entametrix.com/wp-content/uploads/2017/09/nagasawa.jpg',
-  'happy2':'http://image.news.livedoor.com/newsimage/6/3/63ad93525842fb2e9319ac817079232c.jpg',
+  'happy':'https://entametrix.com/wp-content/uploads/2017/09/nagasawa.jpg',
+  'happy2':'https://image.news.livedoor.com/newsimage/6/3/63ad93525842fb2e9319ac817079232c.jpg',
   'happy3':'https://i.pinimg.com/564x/ed/2a/b4/ed2ab44c9adc16e44c080439f0e891a7.jpg',
 
   'ishappy':'https://d3j69vjgw7ziu3.cloudfront.net/item_instagram_directs/images/000/143/305/large/23cf0eec-2b04-4bdd-b2ed-a0e589401706.jpg?1576576508',
@@ -95,8 +95,7 @@ function doPost(e) {
       var text = "あなたの健康状態は" + data.score + "点！"
       
       responseMessage = getMessageTemplate(text, data.text, data.image);
-      
-      
+
     // 3問目
     }else if("isGoodFriends" in requestPostbackData){
       var postbackData = {
